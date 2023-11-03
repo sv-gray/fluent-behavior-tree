@@ -6,7 +6,7 @@
     "types": "dist/index.d.ts",
     "repository": {
         "type": "git",
-        "url": "git+ssh://git@github.com/aequasi/fluent-behavior-tree"
+        "url": "git+ssh://git@github.com/sv-gray/fluent-behavior-tree"
     },
     "scripts": {
         "test": "tsc -v && tsc -p test/ && ava -v",
@@ -43,7 +43,7 @@
         ]
     },
     "bugs": {
-        "url": "https://github.com/aequasi/fluent-behavior-tree/issues"
+        "url": "https://github.com/sv-gray/fluent-behavior-tree/issues"
     },
-    "homepage": "https://github.com/aequasi/fluent-behavior-tree#readme"
+    "homepage": "https://github.com/sv-gray/fluent-behavior-tree#readme"
 }
