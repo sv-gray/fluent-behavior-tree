@@ -1,4 +1,5 @@
 import BehaviorTreeStatus from "../BehaviorTreeStatus";
+import ResultContainer from "../ResultContainer";
 import StateData from "../StateData";
 import BehaviorTreeNodeInterface from "./BehaviorTreeNodeInterface";
 import ParentBehaviorTreeNodeInterface from "./ParentBehaviorTreeNodeInterface";
@@ -25,30 +26,44 @@ export default class ParallelNode implements ParentBehaviorTreeNodeInterface {
     ) {
     }
 
-    public async tick(state: StateData): Promise<BehaviorTreeStatus> {
-        const statuses: BehaviorTreeStatus[] = await Promise.all(this.children.map((c) => this.tickChildren(state, c)));
-        const succeeded                      = statuses.filter((x) => x === BehaviorTreeStatus.Success).length;
-        const failed                         = statuses.filter((x) => x === BehaviorTreeStatus.Failure).length;
+    public async tick(state: StateData): Promise<ResultContainer> {
+        const childResults: ResultContainer[] =
+            await Promise.all(this.children.map((c) => this.tickChildren(state, c)));
+        const succeeded =
+            childResults.filter(({status}) => status === BehaviorTreeStatus.Success).length;
+        const failed =
+            childResults.filter(({status}) => status === BehaviorTreeStatus.Failure).length;
+
+        const myResult: ResultContainer = {
+            name: this.name,
+            status: BehaviorTreeStatus.Running,
+            children: {},
+        };
+
+        childResults.forEach((result) => myResult.children[result.name] = result);
 
         if (this.requiredToSucceed > 0 && succeeded >= this.requiredToSucceed) {
-            return BehaviorTreeStatus.Success;
+            myResult.status = BehaviorTreeStatus.Success;
         }
         if (this.requiredToFail > 0 && failed >= this.requiredToFail) {
-            return BehaviorTreeStatus.Failure;
+            myResult.status = BehaviorTreeStatus.Failure;
         }
 
-        return BehaviorTreeStatus.Running;
+        return myResult;
     }
 
     public addChild(child: BehaviorTreeNodeInterface): void {
         this.children.push(child);
     }
 
-    private async tickChildren(state: StateData, child: BehaviorTreeNodeInterface): Promise<BehaviorTreeStatus> {
+    private async tickChildren(state: StateData, child: BehaviorTreeNodeInterface): Promise<ResultContainer> {
         try {
             return await child.tick(state);
         } catch (e) {
-            return BehaviorTreeStatus.Failure;
+            return {
+                name: child.name,
+                status: BehaviorTreeStatus.Failure,
+            };
         }
     }
 }

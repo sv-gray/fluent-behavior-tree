@@ -40,7 +40,7 @@ test("can create inverter node", async (assert) => {
         .build();
 
     assert.is(InverterNode, node.constructor);
-    assert.is(BehaviorTreeStatus.Failure, await node.tick(new StateData()));
+    assert.is(BehaviorTreeStatus.Failure, (await node.tick(new StateData())).status);
 });
 
 test("can't create an unbalanced behavior tree", async (assert) => {
@@ -62,7 +62,7 @@ test("condition is syntactic sugar for do", async (assert) => {
         .build();
 
     assert.is(InverterNode, node.constructor);
-    assert.is(BehaviorTreeStatus.Failure, await node.tick(new StateData()));
+    assert.is(BehaviorTreeStatus.Failure, (await node.tick(new StateData())).status);
 });
 
 test("can invert an inverter", async (assert) => {
@@ -76,7 +76,7 @@ test("can invert an inverter", async (assert) => {
         .build();
 
     assert.is(InverterNode, node.constructor);
-    assert.is(BehaviorTreeStatus.Success, await node.tick(new StateData()));
+    assert.is(BehaviorTreeStatus.Success, (await node.tick(new StateData())).status);
 });
 
 test("adding more than a single child to inverter throws exception", async (assert) => {
@@ -112,7 +112,7 @@ test("can create a sequence", async (assert) => {
         .build();
 
     assert.is(SequenceNode, sequence.constructor);
-    assert.is(BehaviorTreeStatus.Success, await sequence.tick(new StateData()));
+    assert.is(BehaviorTreeStatus.Success, (await sequence.tick(new StateData())).status);
     assert.is(2, invokeCount);
 });
 
@@ -135,7 +135,7 @@ test("can create a parallel", async (assert) => {
         .build();
 
     assert.is(ParallelNode, parallel.constructor);
-    assert.is(BehaviorTreeStatus.Success, await parallel.tick(new StateData()));
+    assert.is(BehaviorTreeStatus.Success, (await parallel.tick(new StateData())).status);
     assert.is(2, invokeCount);
 });
 
@@ -158,7 +158,7 @@ test("can create a selector", async (assert) => {
         .build();
 
     assert.is(SelectorNode, selector.constructor);
-    assert.is(BehaviorTreeStatus.Success, await selector.tick(new StateData()));
+    assert.is(BehaviorTreeStatus.Success, (await selector.tick(new StateData())).status);
     assert.is(2, invokeCount);
 });
 

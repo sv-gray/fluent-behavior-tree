@@ -9,6 +9,7 @@ import ParallelNode from "./Node/ParallelNode";
 import ParentBehaviorTreeNodeInterface from "./Node/ParentBehaviorTreeNodeInterface";
 import SelectorNode from "./Node/SelectorNode";
 import SequenceNode from "./Node/SequenceNode";
+import ResultContainer from "./ResultContainer";
 import StateData from "./StateData";
 
 export default class BehaviorTreeBuilder {

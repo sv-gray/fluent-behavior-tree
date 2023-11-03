@@ -1,5 +1,6 @@
 import BehaviorTreeStatus from "../BehaviorTreeStatus";
 import NodeEnumerator from "../NodeEnumerator";
+import ResultContainer from "../ResultContainer";
 import StateData from "../StateData";
 import BehaviorTreeNodeInterface from "./BehaviorTreeNodeInterface";
 import ParentBehaviorTreeNodeInterface from "./ParentBehaviorTreeNodeInterface";
@@ -22,6 +23,8 @@ export default class SequenceNode implements ParentBehaviorTreeNodeInterface {
      */
     private enumerator?: NodeEnumerator;
 
+    private ownResult?: ResultContainer;
+
     public constructor(public readonly name: string, private readonly keepState: boolean = false) {
     }
 
@@ -29,29 +32,41 @@ export default class SequenceNode implements ParentBehaviorTreeNodeInterface {
         this.enumerator = new NodeEnumerator(this.children);
     }
 
-    public async tick(state: StateData): Promise<BehaviorTreeStatus> {
+    public async tick(state: StateData): Promise<ResultContainer> {
         if (!this.enumerator || !this.keepState) {
             this.init();
         }
 
+        if (!this.ownResult) {
+            this.ownResult = {
+                name: this.name,
+                status: BehaviorTreeStatus.Running,
+            };
+        }
+
         if (!this.enumerator.current) {
-            return BehaviorTreeStatus.Running;
+            this.ownResult.status = BehaviorTreeStatus.Running;
+            return this.ownResult;
         }
 
         do {
-            const status = await this.enumerator.current.tick(state);
+            const childResult = await this.enumerator.current.tick(state);
+            const {status} = childResult;
+
             if (status !== BehaviorTreeStatus.Success) {
                 if (status === BehaviorTreeStatus.Failure) {
                     this.enumerator.reset();
                 }
 
-                return status;
+                this.ownResult.status = status;
+                return this.ownResult;
             }
 
         } while (this.enumerator.next());
         this.enumerator.reset();
 
-        return BehaviorTreeStatus.Success;
+        this.ownResult.status = BehaviorTreeStatus.Success;
+        return this.ownResult;
     }
 
     public addChild(child: BehaviorTreeNodeInterface): void {

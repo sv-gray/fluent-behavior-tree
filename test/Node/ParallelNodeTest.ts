@@ -23,7 +23,7 @@ test("runs all nodes in order", async (assert) => {
               .returns(() => {
                   assert.is(1, ++callOrder);
 
-                  return Promise.resolve(BehaviorTreeStatus.Running)
+                  return Promise.resolve({name: `parallel 1`, status: BehaviorTreeStatus.Running})
               });
 
      const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
@@ -31,12 +31,12 @@ test("runs all nodes in order", async (assert) => {
               .returns(() => {
                   assert.is(2, ++callOrder);
 
-                  return Promise.resolve(BehaviorTreeStatus.Running)
+                  return Promise.resolve({name: `parallel 2`, status: BehaviorTreeStatus.Running})
               });
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
     assert.is(2, callOrder);
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.once());
@@ -49,26 +49,26 @@ test("fails when required number of children fail", async (assert) => {
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Failure)
+                  return Promise.resolve({name: `fail 1`, status: BehaviorTreeStatus.Failure})
               });
 
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild2.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Failure)
+                  return Promise.resolve({name: `fail 2`, status: BehaviorTreeStatus.Failure})
               });
 
     const mockChild3 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild3.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Running)
+                  return Promise.resolve({name: `fail 3`, status: BehaviorTreeStatus.Running})
               });
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
     testObject.addChild(mockChild3.object);
 
-    assert.is(BehaviorTreeStatus.Failure, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Failure, (await testObject.tick(state)).status);
 
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.once());
@@ -82,26 +82,26 @@ test("succeeds when required number of children succeed", async (assert) => {
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Success)
+                  return Promise.resolve({name: `success 1`, status: BehaviorTreeStatus.Success})
               });
 
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild2.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Success)
+                  return Promise.resolve({name: `success 2`, status: BehaviorTreeStatus.Success})
               });
 
     const mockChild3 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild3.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Running)
+                  return Promise.resolve({name: `success 3`, status: BehaviorTreeStatus.Running})
               });
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
     testObject.addChild(mockChild3.object);
 
-    assert.is(BehaviorTreeStatus.Success, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Success, (await testObject.tick(state)).status);
 
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.once());
@@ -115,19 +115,19 @@ test("continues to run if the required number of children neither succeed or fai
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Success)
+                  return Promise.resolve({name: `parallel 1`, status: BehaviorTreeStatus.Success})
               });
 
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild2.setup(async (m) => await m.tick(state))
               .returns(() => {
-                  return Promise.resolve(BehaviorTreeStatus.Failure)
+                  return Promise.resolve({name: `parallel 2`, status: BehaviorTreeStatus.Failure})
               });
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
 
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
 
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.once());

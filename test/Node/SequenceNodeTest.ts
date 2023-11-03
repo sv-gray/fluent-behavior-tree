@@ -21,7 +21,7 @@ test("can run all children in order", async (assert) => {
               .returns(() => {
                   assert.is(1, ++callOrder);
 
-                  return Promise.resolve(BehaviorTreeStatus.Success)
+                  return Promise.resolve({name: `seq test 1`, status: BehaviorTreeStatus.Success})
               });
 
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
@@ -29,12 +29,12 @@ test("can run all children in order", async (assert) => {
               .returns(() => {
                   assert.is(2, ++callOrder);
 
-                  return Promise.resolve(BehaviorTreeStatus.Success)
+                  return Promise.resolve({name: `seq test 2`, status: BehaviorTreeStatus.Success})
               });
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
-    assert.is(BehaviorTreeStatus.Success, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Success, (await testObject.tick(state)).status);
     assert.is(2, callOrder);
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.once());
@@ -46,12 +46,12 @@ test("when first child is running, second child is supressed", async (assert) =>
 
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Running));
+              .returns(() => Promise.resolve({name: `seq test 1`, status: BehaviorTreeStatus.Running}));
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.never());
 });
@@ -62,12 +62,12 @@ test("when first child fails, then entire sequence fails", async (assert) => {
 
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Failure));
+              .returns(() => Promise.resolve({name: `seq test 1`, status: BehaviorTreeStatus.Failure}));
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
-    assert.is(BehaviorTreeStatus.Failure, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Failure, (await testObject.tick(state)).status);
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.never());
 });
@@ -78,14 +78,14 @@ test("when second child fails, then entire sequence fails", async (assert) => {
 
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Success));
+              .returns(() => Promise.resolve({name: `seq test 1`, status: BehaviorTreeStatus.Success}));
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild2.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Failure));
+              .returns(() => Promise.resolve({name: `seq test 2`, status: BehaviorTreeStatus.Failure}));
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
-    assert.is(BehaviorTreeStatus.Failure, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Failure, (await testObject.tick(state)).status);
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.once());
 });
@@ -95,20 +95,20 @@ test("only evaluates the current node", async (assert) => {
     const state       = new StateData();
     const mockChild1 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild1.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Success));
+              .returns(() => Promise.resolve({name: `seq test 1`, status: BehaviorTreeStatus.Success}));
     const mockChild2 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild2.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Running));
+              .returns(() => Promise.resolve({name: `seq test 2`, status: BehaviorTreeStatus.Running}));
     const mockChild3 = TypeMoq.Mock.ofType<BehaviorTreeNodeInterface>();
     mockChild3.setup(async (m) => await m.tick(state))
-              .returns(() => Promise.resolve(BehaviorTreeStatus.Failure));
+              .returns(() => Promise.resolve({name: `seq test 3`, status: BehaviorTreeStatus.Failure}));
 
     testObject.addChild(mockChild1.object);
     testObject.addChild(mockChild2.object);
     testObject.addChild(mockChild3.object);
 
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
 
     mockChild1.verify((m) => m.tick(state), TypeMoq.Times.once());
     mockChild2.verify((m) => m.tick(state), TypeMoq.Times.exactly(2));

@@ -31,10 +31,10 @@ test("inverts success of child node", async (assert) => {
 
     mockChildNode
         .setup(async (m) => await m.tick(state))
-        .returns(() => Promise.resolve(BehaviorTreeStatus.Success));
+        .returns(() => Promise.resolve({name: 'test', status: BehaviorTreeStatus.Success}));
 
     testObject.addChild(mockChildNode.object);
-    assert.is(BehaviorTreeStatus.Failure, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Failure, (await testObject.tick(state)).status);
     mockChildNode.verify((m) => m.tick(state), TypeMoq.Times.once());
 });
 
@@ -44,10 +44,10 @@ test("inverts failure of child node", async (assert) => {
 
     mockChildNode
         .setup(async (m) => await m.tick(state))
-        .returns(() => Promise.resolve(BehaviorTreeStatus.Failure));
+        .returns(() => Promise.resolve({name: 'test', status: BehaviorTreeStatus.Failure}));
 
     testObject.addChild(mockChildNode.object);
-    assert.is(BehaviorTreeStatus.Success, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Success, (await testObject.tick(state)).status);
     mockChildNode.verify((m) => m.tick(state), TypeMoq.Times.once());
 });
 
@@ -57,10 +57,10 @@ test("pass through running of child node", async (assert) => {
 
     mockChildNode
         .setup(async (m) => await m.tick(state))
-        .returns(() => Promise.resolve(BehaviorTreeStatus.Running));
+        .returns(() => Promise.resolve({name: 'test', status: BehaviorTreeStatus.Running}));
 
     testObject.addChild(mockChildNode.object);
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
     mockChildNode.verify((m) => m.tick(state), TypeMoq.Times.once());
 });
 

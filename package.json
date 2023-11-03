@@ -1,6 +1,6 @@
 {
-    "name": "fluent-behavior-tree",
-    "version": "1.2.6",
+    "name": "@sv-gray/fluent-behavior-tree",
+    "version": "1.2.7",
     "description": "Behavior tree library with a fluent API",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -9,7 +9,7 @@
         "url": "git+ssh://git@github.com/aequasi/fluent-behavior-tree"
     },
     "scripts": {
-        "test": "rm -r test/dist; tsc -v && tsc -p test/ && ava -v",
+        "test": "tsc -v && tsc -p test/ && ava -v",
         "compile": "npm run lint && tsc -p ./",
         "precommit": "npm run compile",
         "prepublishOnly": "npm run compile",
@@ -17,6 +17,9 @@
         "watch": "nodemon -e ts -w src --exec 'npm run compile'"
     },
     "author": "Aaron Scherer <aequasi@gmail.com> (http://aaronscherer.me)",
+    "contributors": [
+        "SV Gray <imago@firemail.de>"
+    ],
     "license": "MIT",
     "dependencies": {
         "ts-data.stack": "^1.0.6",
@@ -29,7 +32,7 @@
         "husky": "^0.14.3",
         "tslint": "^5.8.0",
         "typemoq": "^2.1.0",
-        "typescript": "^2.6.2"
+        "typescript": "^3.5.1"
     },
     "ava": {
         "files": [

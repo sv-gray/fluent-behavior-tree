@@ -16,7 +16,7 @@ test("can run action", async (assert) => {
         }
     );
 
-    assert.is(BehaviorTreeStatus.Running, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Running, (await testObject.tick(state)).status);
     assert.is(1, invokeCount);
 });
 
@@ -29,5 +29,5 @@ test("state is available to nodes", async (assert) => {
         return BehaviorTreeStatus.Success
     });
 
-    assert.is(BehaviorTreeStatus.Success, await testObject.tick(state));
+    assert.is(BehaviorTreeStatus.Success, (await testObject.tick(state)).status);
 });

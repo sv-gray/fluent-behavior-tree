@@ -1,6 +1,7 @@
 import BehaviorTreeStatus from "../BehaviorTreeStatus";
 import BehaviorTreeError from "../Error/BehaviorTreeError";
 import Errors from "../Error/Errors";
+import ResultContainer from "../ResultContainer";
 import StateData from "../StateData";
 import BehaviorTreeNodeInterface from "./BehaviorTreeNodeInterface";
 
@@ -17,12 +18,15 @@ export default class ActionNode implements BehaviorTreeNodeInterface {
     ) {
     }
 
-    public async tick(state: StateData): Promise<BehaviorTreeStatus> {
+    public async tick(state: StateData): Promise<ResultContainer> {
         const result = await this.fn(state);
         if (!result) {
             throw new BehaviorTreeError(Errors.NO_RETURN_VALUE);
         }
 
-        return result;
+        return {
+            name: this.name,
+            status: result,
+        };
     }
 }

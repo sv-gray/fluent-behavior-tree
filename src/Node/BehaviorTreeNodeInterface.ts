@@ -1,6 +1,7 @@
-import BehaviorTreeStatus from "../BehaviorTreeStatus";
+import ResultContainer from "../ResultContainer";
 import StateData from "../StateData";
 
 export default interface BehaviorTreeNodeInterface {
-    tick(state: StateData): Promise<BehaviorTreeStatus>;
+    name: string;
+    tick(state: StateData): Promise<ResultContainer>;
 }
