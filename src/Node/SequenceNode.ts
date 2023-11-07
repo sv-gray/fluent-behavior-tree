@@ -41,6 +41,7 @@ export default class SequenceNode implements ParentBehaviorTreeNodeInterface {
             this.ownResult = {
                 name: this.name,
                 status: BehaviorTreeStatus.Running,
+                children: {}
             };
         }
 
@@ -51,7 +52,8 @@ export default class SequenceNode implements ParentBehaviorTreeNodeInterface {
 
         do {
             const childResult = await this.enumerator.current.tick(state);
-            const {status} = childResult;
+            const {status, name} = childResult;
+            this.ownResult.children[name] = childResult;
 
             if (status !== BehaviorTreeStatus.Success) {
                 if (status === BehaviorTreeStatus.Failure) {
