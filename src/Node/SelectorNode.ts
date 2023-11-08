@@ -41,6 +41,7 @@ export default class SelectorNode implements ParentBehaviorTreeNodeInterface {
             this.ownResult = {
                 name: this.name,
                 status: BehaviorTreeStatus.Running,
+                children: {},
             };
         }
 
@@ -53,9 +54,7 @@ export default class SelectorNode implements ParentBehaviorTreeNodeInterface {
             const childResult = await this.enumerator.current.tick(state);
             const {status, name} = childResult;
             this.ownResult.status = status;
-            this.ownResult.children = {
-                [name]: childResult,
-            };
+            this.ownResult.children[name] = childResult;
             if (status !== BehaviorTreeStatus.Failure) {
                 if (status === BehaviorTreeStatus.Success) {
                     this.enumerator.reset();
